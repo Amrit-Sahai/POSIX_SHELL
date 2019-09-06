@@ -9,7 +9,37 @@ void display()
 {
 	puts("\n\nWELCOME TO MY SHELL\n\n");
 }
-
+int split2(vector<string>z,string s)
+{
+	int i,c=0;//s=s+" ";
+	string k="";
+	for(i=0;i<s.length();i++)
+	{
+		if(s[i]=='"')
+		 continue;
+		if(s[i]!=' ')
+		{
+			k=k+s[i];
+		}
+		else
+		{
+             z.push_back(k);
+			// cout<<z[0]<<endl;
+			c++;
+			//cout<<k;
+			k="";
+			//cout<<args[c]<<endl;
+		}
+	}
+	z.push_back(k);
+	c++;
+	//z.push_back("");
+	//cout<<"hello";
+	//args[c]=NULL;
+	//cout<<"hello";
+	return c;
+}
+	
 void split(char **args,string s)
 {
 		
@@ -20,6 +50,17 @@ void split(char **args,string s)
 	i=0;
 	while(ss>>r[i])
 	{
+		if(r[i][0]=='"'&&r[i][r[i].length()-1]=='"')
+		{
+			int l=r[i].length();
+			string t="";
+			for(int j=1;j<l-1;j++)
+				t+=string(1,r[i][j]);
+		args[i]=&t[0];//cout<<r[i]<<" ";
+		i++;
+		continue;
+		}
+		
 		args[i]=&r[i][0];//cout<<r[i]<<" ";
 		i++;
 	}
@@ -27,6 +68,35 @@ void split(char **args,string s)
 	
 	//return args;
 }
+void append(string s, string k)
+{
+	//cout<<"hello";
+	char *args[100];
+	split(args,s);
+	pid_t pid =fork();
+	if(pid==0)
+	{
+		char *a=(char *)k.c_str();
+		int fd=open(a,O_WRONLY |O_APPEND, 0644);
+		close(1);
+		dup(fd);   
+
+		close(fd);    
+	
+		
+	if(execvp(args[0],args)==-1)
+	{
+		perror("error");
+	}
+	
+	}
+	else
+	{
+		
+    wait(0);
+	
+    }
+}	
 void cp(string s,string k)
 {
 	char *args[100];
@@ -204,7 +274,7 @@ while(1)
 	
 	pid_t pid;
 	fflush(stdout);
-	fflush(stdin);
+	//fflush(stdin);
 	string z1="hostname";
 
 	char *a=(char *)z1.c_str();
@@ -214,7 +284,7 @@ while(1)
 	
 	if(pid==0)
 	{
-		int fd=open("file.txt",O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		int fd=open("file500.txt",O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		close(1);
 		dup(fd);   
 
@@ -231,9 +301,10 @@ while(1)
 	else
 	{
 		    wait(0);
-			char buffer[100];
+			cout<<"heeloo";
+			char buffer[1000];
 			
-			int fd=open("file.txt",O_RDONLY);
+			int fd=open("file500.txt",O_RDONLY);
 			read(fd,buffer,1000);
 			buffer[30]=' ';
 			
@@ -275,7 +346,17 @@ while(1)
 		ptr=strtok(NULL," ");
 	}
 	args[c]=NULL;*/
+	/*vector<string> z;
+	int c=split(z,s);
+	cout<<c;
+	for(i=0;i<c;i++)
+	{
+		args[i]=(char *) z[i].c_str();
+		cout<<args[i]<<endl;
+	}*/
+	//args[i]=NULL;
 	split(args,s);
+	//cout<<args[1];
     if(strcmp(args[0],"cd")==0)
 	{
 		if (cd(args[1]) < 0) 
@@ -284,8 +365,16 @@ while(1)
 	} 
 fflush(stdout);
 fflush(stdin);
+          // cout<<strargs[1].compare(">>");
               if(args[1]==NULL)
-                f=1;				  
+                f=1;	
+            if(f==0&&(strcmp(args[1],">>"))==0)
+		   {
+			   cout<<"hello";
+			   append(args[0],args[2]);
+			   //f=0;
+			   continue;
+		   }			
 	
 		  if(f==0&&args[1][0]=='>')
 		   {
@@ -295,6 +384,7 @@ fflush(stdin);
 			  f=0;
 			   continue;
 		   }
+		   
 	
 	fflush(stdout);
 	fflush(stdin);
